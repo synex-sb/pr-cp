@@ -1,84 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
     <title>PR CP - Admin Panel</title>
+
     <link rel="stylesheet" href="admin.css">
+
 </head>
+
 
 <body>
 
-<div id="loginPage" class="login-page">
+
+<!-- LOGIN -->
+
+<section id="loginPage" class="login-page">
 
     <div class="login-box">
 
-        <div class="admin-logo">
+        <a href="index.html" class="logo">
             PR <span>CP</span>
-        </div>
+        </a>
 
-        <p class="admin-label">ADMIN PANEL</p>
+        <p class="eyebrow">
+            ADMIN PANEL
+        </p>
 
-        <h1>Welcome Back</h1>
-        <p class="login-subtitle">Login to manage your videos.</p>
+        <h1>
+            Welcome Back
+        </h1>
+
+        <p class="subtitle">
+            Sign in to publish and manage videos.
+        </p>
+
 
         <form id="loginForm">
 
-            <label>Username</label>
+            <label>
+                Email
+            </label>
+
             <input
-                type="text"
-                id="username"
-                placeholder="Enter username"
-                required
-            >
+                id="email"
+                type="email"
+                placeholder="Admin email"
+                required>
 
-            <label>Password</label>
 
-            <div class="password-box">
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter password"
-                    required
-                >
+            <label>
+                Password
+            </label>
 
-                <button type="button" id="showPassword">
-                    👁
-                </button>
-            </div>
+            <input
+                id="password"
+                type="password"
+                placeholder="Password"
+                required>
 
-            <p id="loginError" class="error"></p>
 
-            <button class="login-btn" type="submit">
+            <p
+                id="loginError"
+                class="error">
+            </p>
+
+
+            <button
+                type="submit"
+                class="login-button">
+
                 Login
+
             </button>
 
         </form>
 
-        <a href="index.html" class="back">
+
+        <a
+            href="index.html"
+            class="back-link">
+
             ← Back to website
+
         </a>
 
     </div>
 
-</div>
+</section>
 
 
-<div id="adminPage" class="admin-page">
+
+<!-- ADMIN -->
+
+<section
+    id="adminPage"
+    class="admin-page"
+    hidden>
+
 
     <header class="admin-navbar">
 
-        <div class="logo">
+        <a href="index.html" class="logo">
             PR <span>CP</span>
-        </div>
+        </a>
 
-        <div class="admin-right">
+
+        <div class="admin-user">
 
             <span>
-                👤 Admin
+                👤 synexsb
             </span>
 
-            <button id="logoutBtn">
+            <button id="logoutButton">
                 Logout
             </button>
 
@@ -89,61 +129,62 @@
 
     <main class="dashboard">
 
-        <div class="dashboard-header">
 
-            <div>
-                <p class="admin-label">CONTROL PANEL</p>
-                <h1>Admin Dashboard</h1>
-                <p>Manage your PR CP videos.</p>
-            </div>
+        <div class="dashboard-title">
 
-        </div>
+            <p class="eyebrow">
+                CONTROL PANEL
+            </p>
 
+            <h1>
+                Admin Dashboard
+            </h1>
 
-        <div class="stats">
-
-            <div class="stat-card">
-                <span>Total Videos</span>
-                <strong id="totalVideos">0</strong>
-            </div>
-
-            <div class="stat-card">
-                <span>Class Videos</span>
-                <strong id="classVideos">0</strong>
-            </div>
-
-            <div class="stat-card">
-                <span>Tutorials</span>
-                <strong id="tutorialVideos">0</strong>
-            </div>
+            <p>
+                Publish links for everyone to see.
+            </p>
 
         </div>
 
+
+        <!-- PUBLISH -->
 
         <section class="panel">
 
-            <div class="panel-header">
-                <h2>Add New Video</h2>
-            </div>
+            <h2>
+                Publish New Video / Link
+            </h2>
 
-            <form id="videoForm">
+            <p class="help">
+                YouTube, MP4, WebM, or almost any web URL.
+            </p>
+
+
+            <form id="publishForm">
 
                 <div class="form-grid">
 
+
                     <div>
-                        <label>Video Title</label>
+
+                        <label>
+                            Title
+                        </label>
 
                         <input
-                            type="text"
                             id="title"
-                            placeholder="Example: Physics Chapter 1"
-                            required
-                        >
+                            type="text"
+                            placeholder="Video title"
+                            required>
+
                     </div>
 
 
                     <div>
-                        <label>Category</label>
+
+                        <label>
+                            Category
+                        </label>
 
                         <select id="category">
 
@@ -160,69 +201,117 @@
                             </option>
 
                         </select>
+
                     </div>
 
 
                     <div class="full">
 
-                        <label>Video URL</label>
+                        <label>
+                            Video / Link URL
+                        </label>
 
                         <input
-                            type="url"
                             id="videoUrl"
-                            placeholder="https://youtube.com/watch?v=..."
-                            required
-                        >
+                            type="url"
+                            placeholder="https://..."
+                            required>
+
+                        <small>
+                            Example:
+                            YouTube, .mp4, Google Drive, website URL, etc.
+                        </small>
 
                     </div>
 
 
                     <div class="full">
 
-                        <label>Description</label>
+                        <label>
+                            Description
+                        </label>
 
                         <textarea
                             id="description"
-                            placeholder="Video description..."
-                        ></textarea>
+                            placeholder="Short description...">
+                        </textarea>
 
                     </div>
+
 
                 </div>
 
 
-                <button class="add-btn" type="submit">
-                    + Add Video
+                <button
+                    class="publish-button"
+                    type="submit">
+
+                    🚀 Publish
+
                 </button>
+
+
+                <p
+                    id="publishMessage"
+                    class="message">
+                </p>
 
             </form>
 
         </section>
 
 
+
+        <!-- LIST -->
+
         <section class="panel">
 
-            <div class="panel-header">
+            <div class="list-header">
 
-                <h2>Video Management</h2>
+                <div>
+
+                    <h2>
+                        Published Content
+                    </h2>
+
+                    <p class="help">
+                        Manage your published links.
+                    </p>
+
+                </div>
+
 
                 <input
-                    type="text"
                     id="adminSearch"
-                    placeholder="Search videos..."
-                >
+                    type="search"
+                    placeholder="Search...">
 
             </div>
 
-            <div id="adminVideoList"></div>
+
+            <div id="adminList">
+
+                <p class="help">
+                    Loading...
+                </p>
+
+            </div>
 
         </section>
 
+
     </main>
 
-</div>
 
-<script src="admin.js"></script>
+</section>
+
+
+<script
+    type="module"
+    src="admin.js">
+</script>
+
 
 </body>
+
 </html>
