@@ -1,311 +1,512 @@
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "123456";
+import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
-const loginPage = document.getElementById("loginPage");
-const adminPage = document.getElementById("adminPage");
-
-const loginForm = document.getElementById("loginForm");
-const loginError = document.getElementById("loginError");
-
-const logoutBtn = document.getElementById("logoutBtn");
-
-const videoForm = document.getElementById("videoForm");
-const adminVideoList = document.getElementById("adminVideoList");
-
-const adminSearch = document.getElementById("adminSearch");
-
-const showPassword =
-    document.getElementById("showPassword");
-
-
-// Check login
-function checkLogin() {
-
-    const loggedIn =
-        sessionStorage.getItem("prcpAdmin");
-
-    if (loggedIn === "true") {
-
-        loginPage.style.display = "none";
-
-        adminPage.classList.add("show");
-
-        renderVideos();
-
-    } else {
-
-        loginPage.style.display = "flex";
-
-        adminPage.classList.remove("show");
-    }
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
 }
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-
-// Login
-loginForm.addEventListener("submit", function(event) {
-
-    event.preventDefault();
-
-    const username =
-        document.getElementById("username").value.trim();
-
-    const password =
-        document.getElementById("password").value;
-
-
-    if (
-        username === ADMIN_USERNAME &&
-        password === ADMIN_PASSWORD
-    ) {
-
-        sessionStorage.setItem(
-            "prcpAdmin",
-            "true"
-        );
-
-        loginError.textContent = "";
-
-        checkLogin();
-
-    } else {
-
-        loginError.textContent =
-            "Invalid username or password.";
-    }
-
-});
-
-
-// Show password
-showPassword.addEventListener("click", function() {
-
-    const password =
-        document.getElementById("password");
-
-    if (password.type === "password") {
-
-        password.type = "text";
-
-        this.textContent = "🙈";
-
-    } else {
-
-        password.type = "password";
-
-        this.textContent = "👁";
-    }
-
-});
-
-
-// Logout
-logoutBtn.addEventListener("click", function() {
-
-    sessionStorage.removeItem("prcpAdmin");
-
-    location.reload();
-
-});
-
-
-// Get videos
-function getVideos() {
-
-    return JSON.parse(
-        localStorage.getItem("prcpVideos")
-    ) || [];
-
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    serverTimestamp,
+    query,
+    orderBy
 }
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
-// Save videos
-function saveVideos(videos) {
+/* FIREBASE CONFIG */
 
-    localStorage.setItem(
-        "prcpVideos",
-        JSON.stringify(videos)
-    );
+const firebaseConfig = {
 
-}
+    apiKey:
+        "AIzaSyBZZSlLw9C7jpIV4J1BHFstgmEXuIAU6Io",
 
+    authDomain:
+        "pr-cp121.firebaseapp.com",
 
-// Add video
-videoForm.addEventListener("submit", function(event) {
+    projectId:
+        "pr-cp121",
 
-    event.preventDefault();
+    storageBucket:
+        "pr-cp121.firebasestorage.app",
 
-    const videos = getVideos();
+    messagingSenderId:
+        "129574540768",
 
+    appId:
+        "1:129574540768:web:711be5b6fdffe5ad824785",
 
-    const video = {
+    measurementId:
+        "G-YDH6FZRSMT"
+};
 
-        id: Date.now(),
 
-        title:
-            document.getElementById("title")
-            .value.trim(),
+const app =
+    initializeApp(firebaseConfig);
 
-        category:
-            document.getElementById("category")
-            .value,
 
-        url:
-            document.getElementById("videoUrl")
-            .value.trim(),
+const auth =
+    getAuth(app);
 
-        description:
-            document.getElementById("description")
-            .value.trim()
-            ||
-            "No description available."
-    };
 
+const db =
+    getFirestore(app);
 
-    videos.unshift(video);
 
-    saveVideos(videos);
+/* ELEMENTS */
 
-    videoForm.reset();
+const loginPage =
+    document.getElementById("loginPage");
 
-    renderVideos();
+const adminPage =
+    document.getElementById("adminPage");
 
-    alert("Video added successfully!");
+const loginForm =
+    document.getElementById("loginForm");
 
-});
+const loginError =
+    document.getElementById("loginError");
 
+const logoutButton =
+    document.getElementById("logoutButton");
 
-// Render videos
-function renderVideos() {
+const publishForm =
+    document.getElementById("publishForm");
 
-    const videos = getVideos();
+const publishMessage =
+    document.getElementById("publishMessage");
 
-    const search =
-        adminSearch.value
-        .toLowerCase()
-        .trim();
+const adminList =
+    document.getElementById("adminList");
 
+const adminSearch =
+    document.getElementById("adminSearch");
 
-    const filtered =
-        videos.filter(video =>
-            video.title
-                .toLowerCase()
-                .includes(search)
-        );
 
+let publishedVideos = [];
 
-    adminVideoList.innerHTML = "";
 
+/* ESCAPE */
 
-    filtered.forEach(video => {
+function escapeHTML(value = "") {
 
-        const item =
-            document.createElement("div");
-
-        item.className = "admin-video";
-
-        item.innerHTML = `
-
-            <div class="video-details">
-
-                <span class="video-category">
-                    ${escapeHTML(video.category)}
-                </span>
-
-                <h3>
-                    ${escapeHTML(video.title)}
-                </h3>
-
-                <p>
-                    ${escapeHTML(video.description)}
-                </p>
-
-            </div>
-
-            <button
-                class="delete-btn"
-                onclick="deleteVideo(${video.id})">
-                Delete
-            </button>
-
-        `;
-
-        adminVideoList.appendChild(item);
-
-    });
-
-
-    if (filtered.length === 0) {
-
-        adminVideoList.innerHTML = `
-            <p style="color:#6b7280;padding:20px 0;">
-                No videos found.
-            </p>
-        `;
-    }
-
-
-    updateStats(videos);
-}
-
-
-// Delete video
-function deleteVideo(id) {
-
-    if (!confirm("Delete this video?")) {
-        return;
-    }
-
-    let videos = getVideos();
-
-    videos =
-        videos.filter(video =>
-            video.id !== id
-        );
-
-    saveVideos(videos);
-
-    renderVideos();
-}
-
-
-// Statistics
-function updateStats(videos) {
-
-    document.getElementById("totalVideos")
-        .textContent = videos.length;
-
-    document.getElementById("classVideos")
-        .textContent =
-        videos.filter(v =>
-            v.category === "Class"
-        ).length;
-
-    document.getElementById("tutorialVideos")
-        .textContent =
-        videos.filter(v =>
-            v.category === "Tutorial"
-        ).length;
-}
-
-
-// Search
-adminSearch.addEventListener(
-    "input",
-    renderVideos
-);
-
-
-// HTML protection
-function escapeHTML(text) {
-
-    return text
+    return value
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+
 }
 
 
-// Start
-checkLogin();
+/* LOGIN */
+
+loginForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        loginError.textContent = "";
+
+
+        const email =
+            document.getElementById("email")
+                .value
+                .trim();
+
+
+        const password =
+            document.getElementById("password")
+                .value;
+
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+
+            loginError.textContent =
+                "Invalid email or password.";
+
+        }
+
+    }
+);
+
+
+/* AUTH STATE */
+
+onAuthStateChanged(
+    auth,
+    async user => {
+
+        if (user) {
+
+            loginPage.style.display =
+                "none";
+
+            adminPage.hidden =
+                false;
+
+            await loadAdminVideos();
+
+        }
+
+        else {
+
+            loginPage.style.display =
+                "flex";
+
+            adminPage.hidden =
+                true;
+
+        }
+
+    }
+);
+
+
+/* LOGOUT */
+
+logoutButton.addEventListener(
+    "click",
+    async () => {
+
+        await signOut(auth);
+
+    }
+);
+
+
+/* PUBLISH */
+
+publishForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        publishMessage.textContent =
+            "Publishing...";
+
+
+        publishMessage.style.color =
+            "#635bff";
+
+
+        const title =
+            document.getElementById("title")
+                .value
+                .trim();
+
+
+        const category =
+            document.getElementById("category")
+                .value;
+
+
+        const url =
+            document.getElementById("videoUrl")
+                .value
+                .trim();
+
+
+        const description =
+            document.getElementById("description")
+                .value
+                .trim();
+
+
+        try {
+
+            await addDoc(
+                collection(db, "videos"),
+                {
+
+                    title: title,
+
+                    category: category,
+
+                    url: url,
+
+                    description:
+                        description ||
+                        "No description available.",
+
+                    createdAt:
+                        serverTimestamp()
+
+                }
+            );
+
+
+            publishForm.reset();
+
+
+            publishMessage.textContent =
+                "Published successfully!";
+
+            publishMessage.style.color =
+                "#16a34a";
+
+
+            await loadAdminVideos();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+
+            publishMessage.textContent =
+                "Publish failed. Check Firestore Rules.";
+
+            publishMessage.style.color =
+                "#dc2626";
+
+        }
+
+    }
+);
+
+
+/* LOAD */
+
+async function loadAdminVideos() {
+
+    try {
+
+        const ref =
+            collection(db, "videos");
+
+
+        const q =
+            query(
+                ref,
+                orderBy("createdAt", "desc")
+            );
+
+
+        const snapshot =
+            await getDocs(q);
+
+
+        publishedVideos =
+            snapshot.docs.map(item => {
+
+                return {
+
+                    id: item.id,
+
+                    ...item.data()
+
+                };
+
+            });
+
+
+        renderAdminVideos();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        adminList.innerHTML = `
+            <p class="help">
+                Unable to load published content.
+            </p>
+        `;
+
+    }
+
+}
+
+
+/* RENDER */
+
+function renderAdminVideos() {
+
+    const search =
+        adminSearch.value
+            .toLowerCase()
+            .trim();
+
+
+    const filtered =
+        publishedVideos.filter(video => {
+
+            return (
+                video.title
+                    .toLowerCase()
+                    .includes(search) ||
+
+                video.url
+                    .toLowerCase()
+                    .includes(search)
+            );
+
+        });
+
+
+    if (filtered.length === 0) {
+
+        adminList.innerHTML = `
+            <p class="help">
+                No published content.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    adminList.innerHTML =
+        filtered.map(video => {
+
+            return `
+
+                <div class="admin-item">
+
+                    <div>
+
+                        <span class="badge">
+
+                            ${escapeHTML(
+                                video.category
+                            )}
+
+                        </span>
+
+
+                        <h3>
+
+                            ${escapeHTML(
+                                video.title
+                            )}
+
+                        </h3>
+
+
+                        <p class="admin-item-url">
+
+                            ${escapeHTML(
+                                video.url
+                            )}
+
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="delete-button"
+                        data-id="${video.id}">
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+
+    document
+        .querySelectorAll(".delete-button")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    deleteVideo(
+                        button.dataset.id
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* DELETE */
+
+async function deleteVideo(id) {
+
+    const confirmed =
+        confirm(
+            "Delete this published item?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await deleteDoc(
+            doc(
+                db,
+                "videos",
+                id
+            )
+        );
+
+
+        await loadAdminVideos();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Delete failed."
+        );
+
+    }
+
+}
+
+
+/* SEARCH */
+
+adminSearch.addEventListener(
+    "input",
+    renderAdminVideos
+);
