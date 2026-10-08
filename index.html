@@ -1,121 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>PR CP - Video Platform</title>
+  <title>PR CP - Video & Photo Platform</title>
 
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script type="module" src="app.js"></script>
 </head>
 
 <body>
 
 <header class="navbar">
 
-    <a href="index.html" class="logo">
-        PR <span>CP</span>
-    </a>
+  <div class="logo">
+    PR <span>CP</span>
+  </div>
 
-    <nav>
-        <a href="#videos">Videos</a>
-        <a href="admin.html">Admin</a>
-    </nav>
+  <nav>
+    <a href="#videos">Videos</a>
+    <a href="#photos">Photos</a>
+    <a href="admin.html">Admin</a>
+  </nav>
 
 </header>
 
 
 <section class="hero">
 
-    <div class="hero-content">
+  <div>
+    <h1>PR CP</h1>
 
-        <p class="eyebrow">
-            PR CP VIDEO PLATFORM
-        </p>
+    <h2>VIDEO & PHOTO PLATFORM</h2>
 
-        <h1>
-            Learn. Watch.
-            <span>Grow.</span>
-        </h1>
+    <p>
+      Learn. Watch. Grow.
+    </p>
 
-        <p class="hero-description">
-            Watch videos and useful resources published by PR CP.
-        </p>
-
-        <a href="#videos" class="hero-button">
-            Browse Videos
-        </a>
-
-    </div>
+    <a href="#photos" class="hero-btn">
+      Explore Photos
+    </a>
+  </div>
 
 </section>
 
 
-<section id="videos" class="videos-section">
+<!-- VIDEOS -->
 
-    <div class="section-top">
+<section id="videos" class="section">
 
-        <div>
-            <p class="eyebrow">
-                VIDEO LIBRARY
-            </p>
+  <div class="section-head">
 
-            <h2>
-                Published Videos
-            </h2>
-        </div>
-
-        <input
-            type="search"
-            id="searchInput"
-            placeholder="Search videos..."
-        >
-
+    <div>
+      <h2>Video Library</h2>
+      <p>Watch educational and useful videos.</p>
     </div>
 
-
-    <div class="category-bar">
-
-        <button class="category active" data-category="All">
-            All
-        </button>
-
-        <button class="category" data-category="Class">
-            Class
-        </button>
-
-        <button class="category" data-category="Tutorial">
-            Tutorial
-        </button>
-
-        <button class="category" data-category="Other">
-            Other
-        </button>
-
-    </div>
+  </div>
 
 
-    <div id="videoGrid" class="video-grid">
+  <div class="search-box">
 
-        <div class="loading">
-            Loading videos...
-        </div>
+    <input
+      type="text"
+      id="videoSearch"
+      placeholder="Search videos..."
+    >
 
-    </div>
+  </div>
+
+
+  <div id="videoGrid" class="video-grid">
+
+    <!-- Existing videos can be added here -->
+
+  </div>
 
 </section>
+
+
+
+<!-- PHOTOS -->
+
+<section id="photos" class="section">
+
+  <div class="section-head">
+
+    <div>
+      <h2>Photo Gallery</h2>
+      <p>Explore uploaded photos.</p>
+    </div>
+
+  </div>
+
+
+  <div class="search-box">
+
+    <input
+      type="text"
+      id="photoSearch"
+      placeholder="Search photos..."
+    >
+
+  </div>
+
+
+  <div class="categories">
+
+    <button class="category active" data-category="all">
+      All
+    </button>
+
+    <button class="category" data-category="class">
+      Class
+    </button>
+
+    <button class="category" data-category="event">
+      Event
+    </button>
+
+    <button class="category" data-category="other">
+      Other
+    </button>
+
+  </div>
+
+
+  <div id="photoGrid" class="photo-grid">
+
+    <div class="loading">
+      Loading photos...
+    </div>
+
+  </div>
+
+</section>
+
 
 
 <footer>
 
-    <p>
-        © 2026 PR CP. All Rights Reserved.
-    </p>
+  <p>
+    © 2026 PR CP. All Rights Reserved.
+  </p>
 
 </footer>
 
-
-<script type="module" src="app.js"></script>
 
 </body>
 </html>
