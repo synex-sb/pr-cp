@@ -1,17 +1,24 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    <title>PR CP - Admin Panel</title>
+  <title>PR CP - Admin</title>
 
-    <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script
+    type="module"
+    src="admin.js"
+  ></script>
 
 </head>
 
@@ -19,297 +26,144 @@
 <body>
 
 
-<!-- LOGIN -->
+<header class="navbar">
 
-<section id="loginPage" class="login-page">
+  <div class="logo">
+    PR <span>CP</span>
+  </div>
 
-    <div class="login-box">
+  <nav>
 
-        <a href="index.html" class="logo">
-            PR <span>CP</span>
-        </a>
+    <a href="index.html">
+      Home
+    </a>
 
-        <p class="eyebrow">
-            ADMIN PANEL
-        </p>
+  </nav>
 
-        <h1>
-            Welcome Back
-        </h1>
+</header>
 
-        <p class="subtitle">
-            Sign in to publish and manage videos.
-        </p>
 
 
-        <form id="loginForm">
+<main class="admin-container">
 
-            <label>
-                Email
-            </label>
 
-            <input
-                id="email"
-                type="email"
-                placeholder="Admin email"
-                required>
+<h1>
+  Photo Admin
+</h1>
 
+<p class="admin-subtitle">
+  Upload and manage PR CP photos.
+</p>
 
-            <label>
-                Password
-            </label>
 
-            <input
-                id="password"
-                type="password"
-                placeholder="Password"
-                required>
 
+<!-- UPLOAD -->
 
-            <p
-                id="loginError"
-                class="error">
-            </p>
+<div class="admin-card">
 
+  <h2>
+    Upload Photo
+  </h2>
 
-            <button
-                type="submit"
-                class="login-button">
 
-                Login
+  <form id="uploadForm">
 
-            </button>
 
-        </form>
+    <label>
+      Photo
+    </label>
 
+    <input
+      type="file"
+      id="photoFile"
+      accept="image/*"
+      required
+    >
 
-        <a
-            href="index.html"
-            class="back-link">
 
-            ← Back to website
+    <label>
+      Title
+    </label>
 
-        </a>
+    <input
+      type="text"
+      id="photoTitle"
+      placeholder="Photo title"
+      required
+    >
 
-    </div>
 
-</section>
+    <label>
+      Description
+    </label>
 
+    <textarea
+      id="photoDescription"
+      placeholder="Photo description"
+    ></textarea>
 
 
-<!-- ADMIN -->
+    <label>
+      Category
+    </label>
 
-<section
-    id="adminPage"
-    class="admin-page"
-    hidden>
+    <select id="photoCategory">
 
+      <option value="class">
+        Class
+      </option>
 
-    <header class="admin-navbar">
+      <option value="event">
+        Event
+      </option>
 
-        <a href="index.html" class="logo">
-            PR <span>CP</span>
-        </a>
+      <option value="other">
+        Other
+      </option>
 
+    </select>
 
-        <div class="admin-user">
 
-            <span>
-                👤 synexsb
-            </span>
+    <button
+      type="submit"
+      class="upload-btn"
+      id="uploadBtn"
+    >
 
-            <button id="logoutButton">
-                Logout
-            </button>
+      Upload Photo
 
-        </div>
+    </button>
 
-    </header>
 
+  </form>
 
-    <main class="dashboard">
 
+  <div id="uploadStatus"></div>
 
-        <div class="dashboard-title">
+</div>
 
-            <p class="eyebrow">
-                CONTROL PANEL
-            </p>
 
-            <h1>
-                Admin Dashboard
-            </h1>
 
-            <p>
-                Publish links for everyone to see.
-            </p>
+<!-- MANAGE -->
 
-        </div>
+<div class="admin-card">
 
+  <h2>
+    Uploaded Photos
+  </h2>
 
-        <!-- PUBLISH -->
 
-        <section class="panel">
+  <div id="adminPhotoGrid">
 
-            <h2>
-                Publish New Video / Link
-            </h2>
+    Loading...
 
-            <p class="help">
-                YouTube, MP4, WebM, or almost any web URL.
-            </p>
+  </div>
 
+</div>
 
-            <form id="publishForm">
 
-                <div class="form-grid">
+</main>
 
-
-                    <div>
-
-                        <label>
-                            Title
-                        </label>
-
-                        <input
-                            id="title"
-                            type="text"
-                            placeholder="Video title"
-                            required>
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-                            Category
-                        </label>
-
-                        <select id="category">
-
-                            <option value="Class">
-                                Class
-                            </option>
-
-                            <option value="Tutorial">
-                                Tutorial
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="full">
-
-                        <label>
-                            Video / Link URL
-                        </label>
-
-                        <input
-                            id="videoUrl"
-                            type="url"
-                            placeholder="https://..."
-                            required>
-
-                        <small>
-                            Example:
-                            YouTube, .mp4, Google Drive, website URL, etc.
-                        </small>
-
-                    </div>
-
-
-                    <div class="full">
-
-                        <label>
-                            Description
-                        </label>
-
-                        <textarea
-                            id="description"
-                            placeholder="Short description...">
-                        </textarea>
-
-                    </div>
-
-
-                </div>
-
-
-                <button
-                    class="publish-button"
-                    type="submit">
-
-                    🚀 Publish
-
-                </button>
-
-
-                <p
-                    id="publishMessage"
-                    class="message">
-                </p>
-
-            </form>
-
-        </section>
-
-
-
-        <!-- LIST -->
-
-        <section class="panel">
-
-            <div class="list-header">
-
-                <div>
-
-                    <h2>
-                        Published Content
-                    </h2>
-
-                    <p class="help">
-                        Manage your published links.
-                    </p>
-
-                </div>
-
-
-                <input
-                    id="adminSearch"
-                    type="search"
-                    placeholder="Search...">
-
-            </div>
-
-
-            <div id="adminList">
-
-                <p class="help">
-                    Loading...
-                </p>
-
-            </div>
-
-        </section>
-
-
-    </main>
-
-
-</section>
-
-
-<script
-    type="module"
-    src="admin.js">
-</script>
 
 
 </body>
