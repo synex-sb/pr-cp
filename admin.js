@@ -1,512 +1,437 @@
-import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-}
-from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  orderBy,
+  query
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    deleteDoc,
-    doc,
-    serverTimestamp,
-    query,
-    orderBy
-}
-from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
 
-/* FIREBASE CONFIG */
+// ==================================
+// FIREBASE CONFIG
+// ==================================
 
 const firebaseConfig = {
 
-    apiKey:
-        "AIzaSyBZZSlLw9C7jpIV4J1BHFstgmEXuIAU6Io",
+  apiKey: "YOUR_API_KEY",
 
-    authDomain:
-        "pr-cp121.firebaseapp.com",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
 
-    projectId:
-        "pr-cp121",
+  projectId: "YOUR_PROJECT_ID",
 
-    storageBucket:
-        "pr-cp121.firebasestorage.app",
+  storageBucket: "YOUR_PROJECT.firebasestorage.app",
 
-    messagingSenderId:
-        "129574540768",
+  messagingSenderId: "YOUR_SENDER_ID",
 
-    appId:
-        "1:129574540768:web:711be5b6fdffe5ad824785",
+  appId: "YOUR_APP_ID"
 
-    measurementId:
-        "G-YDH6FZRSMT"
 };
 
 
-const app =
-    initializeApp(firebaseConfig);
+// Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const storage = getStorage(app);
 
 
-const auth =
-    getAuth(app);
+// ==================================
+// ELEMENTS
+// ==================================
+
+const uploadForm =
+  document.getElementById("uploadForm");
+
+const photoFile =
+  document.getElementById("photoFile");
+
+const photoTitle =
+  document.getElementById("photoTitle");
+
+const photoDescription =
+  document.getElementById("photoDescription");
+
+const photoCategory =
+  document.getElementById("photoCategory");
+
+const uploadBtn =
+  document.getElementById("uploadBtn");
+
+const uploadStatus =
+  document.getElementById("uploadStatus");
+
+const adminPhotoGrid =
+  document.getElementById("adminPhotoGrid");
 
 
-const db =
-    getFirestore(app);
+// ==================================
+// UPLOAD PHOTO
+// ==================================
+
+uploadForm.addEventListener(
+  "submit",
+  async (e) => {
+
+    e.preventDefault();
 
 
-/* ELEMENTS */
-
-const loginPage =
-    document.getElementById("loginPage");
-
-const adminPage =
-    document.getElementById("adminPage");
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const loginError =
-    document.getElementById("loginError");
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-const publishForm =
-    document.getElementById("publishForm");
-
-const publishMessage =
-    document.getElementById("publishMessage");
-
-const adminList =
-    document.getElementById("adminList");
-
-const adminSearch =
-    document.getElementById("adminSearch");
+    const file =
+      photoFile.files[0];
 
 
-let publishedVideos = [];
+    if (!file) {
 
+      alert("Please select a photo.");
 
-/* ESCAPE */
-
-function escapeHTML(value = "") {
-
-    return value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-}
-
-
-/* LOGIN */
-
-loginForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        loginError.textContent = "";
-
-
-        const email =
-            document.getElementById("email")
-                .value
-                .trim();
-
-
-        const password =
-            document.getElementById("password")
-                .value;
-
-
-        try {
-
-            await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-
-            loginError.textContent =
-                "Invalid email or password.";
-
-        }
+      return;
 
     }
-);
 
 
-/* AUTH STATE */
+    // File size limit: 10 MB
 
-onAuthStateChanged(
-    auth,
-    async user => {
+    if (file.size > 10 * 1024 * 1024) {
 
-        if (user) {
+      alert(
+        "Photo must be smaller than 10 MB."
+      );
 
-            loginPage.style.display =
-                "none";
-
-            adminPage.hidden =
-                false;
-
-            await loadAdminVideos();
-
-        }
-
-        else {
-
-            loginPage.style.display =
-                "flex";
-
-            adminPage.hidden =
-                true;
-
-        }
+      return;
 
     }
-);
 
 
-/* LOGOUT */
+    uploadBtn.disabled = true;
 
-logoutButton.addEventListener(
-    "click",
-    async () => {
-
-        await signOut(auth);
-
-    }
-);
+    uploadBtn.textContent =
+      "Uploading...";
 
 
-/* PUBLISH */
+    uploadStatus.innerHTML =
+      "Uploading photo...";
 
-publishForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        publishMessage.textContent =
-            "Publishing...";
-
-
-        publishMessage.style.color =
-            "#635bff";
-
-
-        const title =
-            document.getElementById("title")
-                .value
-                .trim();
-
-
-        const category =
-            document.getElementById("category")
-                .value;
-
-
-        const url =
-            document.getElementById("videoUrl")
-                .value
-                .trim();
-
-
-        const description =
-            document.getElementById("description")
-                .value
-                .trim();
-
-
-        try {
-
-            await addDoc(
-                collection(db, "videos"),
-                {
-
-                    title: title,
-
-                    category: category,
-
-                    url: url,
-
-                    description:
-                        description ||
-                        "No description available.",
-
-                    createdAt:
-                        serverTimestamp()
-
-                }
-            );
-
-
-            publishForm.reset();
-
-
-            publishMessage.textContent =
-                "Published successfully!";
-
-            publishMessage.style.color =
-                "#16a34a";
-
-
-            await loadAdminVideos();
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-
-            publishMessage.textContent =
-                "Publish failed. Check Firestore Rules.";
-
-            publishMessage.style.color =
-                "#dc2626";
-
-        }
-
-    }
-);
-
-
-/* LOAD */
-
-async function loadAdminVideos() {
 
     try {
 
-        const ref =
-            collection(db, "videos");
+      // Unique filename
+
+      const fileName =
+        Date.now() +
+        "_" +
+        Math.random()
+          .toString(36)
+          .substring(2) +
+        "_" +
+        file.name;
 
 
-        const q =
-            query(
-                ref,
-                orderBy("createdAt", "desc")
-            );
+      // Storage path
+
+      const storageRef =
+        ref(
+          storage,
+          `photos/${fileName}`
+        );
 
 
-        const snapshot =
-            await getDocs(q);
+      // Upload image
+
+      await uploadBytes(
+        storageRef,
+        file
+      );
 
 
-        publishedVideos =
-            snapshot.docs.map(item => {
+      // Get image URL
 
-                return {
-
-                    id: item.id,
-
-                    ...item.data()
-
-                };
-
-            });
+      const imageUrl =
+        await getDownloadURL(
+          storageRef
+        );
 
 
-        renderAdminVideos();
+      // Save information
+
+      await addDoc(
+        collection(db, "photos"),
+        {
+
+          title:
+            photoTitle.value.trim(),
+
+          description:
+            photoDescription.value.trim(),
+
+          category:
+            photoCategory.value,
+
+          imageUrl:
+            imageUrl,
+
+          storagePath:
+            `photos/${fileName}`,
+
+          fileName:
+            fileName,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      uploadStatus.innerHTML =
+        "✅ Photo uploaded successfully!";
+
+
+      uploadForm.reset();
+
+
+      loadAdminPhotos();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      uploadStatus.innerHTML =
+        "❌ Upload failed: " +
+        error.message;
 
     }
 
-    catch (error) {
 
-        console.error(error);
+    uploadBtn.disabled = false;
 
+    uploadBtn.textContent =
+      "Upload Photo";
 
-        adminList.innerHTML = `
-            <p class="help">
-                Unable to load published content.
-            </p>
-        `;
-
-    }
-
-}
+  }
+);
 
 
-/* RENDER */
+// ==================================
+// LOAD ADMIN PHOTOS
+// ==================================
 
-function renderAdminVideos() {
+async function loadAdminPhotos() {
 
-    const search =
-        adminSearch.value
-            .toLowerCase()
-            .trim();
+  try {
 
-
-    const filtered =
-        publishedVideos.filter(video => {
-
-            return (
-                video.title
-                    .toLowerCase()
-                    .includes(search) ||
-
-                video.url
-                    .toLowerCase()
-                    .includes(search)
-            );
-
-        });
+    const q = query(
+      collection(db, "photos"),
+      orderBy("createdAt", "desc")
+    );
 
 
-    if (filtered.length === 0) {
+    const snapshot =
+      await getDocs(q);
 
-        adminList.innerHTML = `
-            <p class="help">
-                No published content.
-            </p>
-        `;
 
-        return;
+    if (snapshot.empty) {
+
+      adminPhotoGrid.innerHTML =
+        "<p>No photos uploaded yet.</p>";
+
+      return;
 
     }
 
 
-    adminList.innerHTML =
-        filtered.map(video => {
-
-            return `
-
-                <div class="admin-item">
-
-                    <div>
-
-                        <span class="badge">
-
-                            ${escapeHTML(
-                                video.category
-                            )}
-
-                        </span>
+    adminPhotoGrid.innerHTML = "";
 
 
-                        <h3>
+    snapshot.forEach((document) => {
 
-                            ${escapeHTML(
-                                video.title
-                            )}
-
-                        </h3>
+      const photo =
+        document.data();
 
 
-                        <p class="admin-item-url">
-
-                            ${escapeHTML(
-                                video.url
-                            )}
-
-                        </p>
-
-                    </div>
+      const card =
+        document.createElement("div");
 
 
-                    <button
-                        class="delete-button"
-                        data-id="${video.id}">
+      card.className =
+        "admin-photo";
 
-                        Delete
 
-                    </button>
+      card.innerHTML = `
 
-                </div>
+        <img
+          src="${photo.imageUrl}"
+          alt="photo"
+        >
 
-            `;
+        <div>
 
-        }).join("");
+          <strong>
+            ${escapeHTML(
+              photo.title || "Untitled"
+            )}
+          </strong>
+
+          <small>
+            ${escapeHTML(
+              photo.category || "Other"
+            )}
+          </small>
+
+          <button
+            class="delete-btn"
+            data-id="${document.id}"
+            data-path="${photo.storagePath || ""}"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      `;
+
+
+      adminPhotoGrid.appendChild(card);
+
+    });
 
 
     document
-        .querySelectorAll(".delete-button")
-        .forEach(button => {
+      .querySelectorAll(".delete-btn")
+      .forEach(button => {
 
-            button.addEventListener(
-                "click",
-                () => {
+        button.addEventListener(
+          "click",
+          () => {
 
-                    deleteVideo(
-                        button.dataset.id
-                    );
-
-                }
+            deletePhoto(
+              button.dataset.id,
+              button.dataset.path
             );
 
-        });
+          }
+        );
+
+      });
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    adminPhotoGrid.innerHTML =
+      "Failed to load photos.";
+
+  }
 
 }
 
 
-/* DELETE */
+// ==================================
+// DELETE PHOTO
+// ==================================
 
-async function deleteVideo(id) {
+async function deletePhoto(
+  id,
+  storagePath
+) {
 
-    const confirmed =
-        confirm(
-            "Delete this published item?"
+  const confirmDelete =
+    confirm(
+      "Delete this photo permanently?"
+    );
+
+
+  if (!confirmDelete) return;
+
+
+  try {
+
+    // Delete Storage file
+
+    if (storagePath) {
+
+      const fileRef =
+        ref(
+          storage,
+          storagePath
         );
 
+      await deleteObject(
+        fileRef
+      );
 
-    if (!confirmed) {
-        return;
     }
 
 
-    try {
+    // Delete Firestore document
 
-        await deleteDoc(
-            doc(
-                db,
-                "videos",
-                id
-            )
-        );
+    await deleteDoc(
+      doc(
+        db,
+        "photos",
+        id
+      )
+    );
 
 
-        await loadAdminVideos();
+    alert(
+      "Photo deleted successfully."
+    );
 
-    }
 
-    catch (error) {
+    loadAdminPhotos();
 
-        console.error(error);
 
-        alert(
-            "Delete failed."
-        );
+  } catch (error) {
 
-    }
+    console.error(error);
+
+    alert(
+      "Delete failed: " +
+      error.message
+    );
+
+  }
 
 }
 
 
-/* SEARCH */
+// ==================================
+// ESCAPE HTML
+// ==================================
 
-adminSearch.addEventListener(
-    "input",
-    renderAdminVideos
-);
+function escapeHTML(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+// ==================================
+// START
+// ==================================
+
+loadAdminPhotos();
